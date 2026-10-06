@@ -281,6 +281,8 @@
 </div>
 
 <script>
+  const STREAM_URL = 'https://my.groover.stream:8010/live';
+
   const audio = document.getElementById('stream');
   const stage = document.getElementById('stage');
   const playBtn = document.getElementById('playBtn');
@@ -300,11 +302,16 @@
   playBtn.addEventListener('click', () => {
     if (audio.paused) {
       setStatus('Sintonizando', true);
+      // Se pide la señal de nuevo cada vez, así siempre suena lo que está al aire.
+      audio.src = STREAM_URL;
+      audio.load();
       audio.play().catch(() => {
         setStatus('No se pudo conectar — toca para reintentar');
       });
     } else {
       audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
     }
   });
 
@@ -329,6 +336,7 @@
   });
 
   audio.addEventListener('error', () => {
+    if (!audio.getAttribute('src')) return;
     stage.classList.remove('is-playing');
     badgeText.textContent = 'Sin señal';
     setStatus('Señal perdida — toca para reintentar');
